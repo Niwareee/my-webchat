@@ -11,16 +11,28 @@ export default function ChatHome() {
 
     const [message, setMessage] = useState("");
 
-    const sendMessage = (message) => {
-        socket.emit("room::message::send", {room: "default", message: message});
+    const sendMessage = (nickName, message) => {
+        socket.emit("room::message::send", {
+            room: "default",
+            nickName: nickName,
+            message: message
+        });
     }
 
-    const sendMessageRoom = (room, message) => {
-        socket.emit("room::message::send", {room: room, message: message});
+    const sendMessageRoom = (room, nickName, message) => {
+        socket.emit("room::message::send", {
+            room: room,
+            nickName: nickName,
+            message: message
+        });
     }
 
     const joinRoom = (room) => {
         socket.emit("room::join", room);
+    }
+
+    const leaveRoom = (room) => {
+        socket.emit("room::leave", room);
     }
 
     useEffect(() => {
@@ -29,12 +41,16 @@ export default function ChatHome() {
             return;
         }
 
-        socket.on("room::message::send", ({room, message}) => {
-            console.log("Message received from", player.nickname, ":", message);
+        socket.on("room::message::send", ({room, nickName, message}) => {
+            console.log("[ROOM:" + room + "] From", nickName, ":", message);
         });
 
         socket.on("room::join", (room) => {
             console.log("Room " + room + " successfully joined");
+        });
+
+        socket.on("room::leave", (room) => {
+            console.log("Room " + room + " successfully left");
         });
     }, []);
 
@@ -43,16 +59,19 @@ export default function ChatHome() {
             <input value={message} onChange={(event) => setMessage(event.target.value)}/>
             <button onClick={() => {
                 if (player.room === "") {
-                    sendMessage(message);
+                    sendMessage(player.nickname, message);
                     return;
                 }
 
-                sendMessageRoom(player.room, message)
-            }}>Envoyer le message
+                sendMessageRoom(player.room, player.nickname, message)
+            }}>Envoyer un message
             </button>
 
             <input value={player.room} onChange={(event) => player.setRoom(event.target.value)}/>
-            <button onClick={() => joinRoom(player.room)}>Rejoindre la room</button>
+            <button onClick={() => joinRoom(player.room)}>Rejoindre une room</button>
+
+            <input value={player.room} onChange={(event) => player.setRoom(event.target.value)}/>
+            <button onClick={() => leaveRoom(player.room)}>Quitter une room</button>
         </div>
     );
 }

@@ -15,8 +15,13 @@ export function launch(port) {
             socket.emit("room::join", room);
         });
 
-        socket.on("room::message::send", ({room, message}) => {
-            server.to(room).emit("room::message::send", {room, message});
+        socket.on("room::leave", (room) => {
+            socket.leave(room);
+            socket.emit("room::leave", room);
+        });
+
+        socket.on("room::message::send", ({room, nickName, message}) => {
+            server.to(room).emit("room::message::send", {room, nickName, message});
         });
     })
 
