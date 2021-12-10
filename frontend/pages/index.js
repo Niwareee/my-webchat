@@ -1,16 +1,14 @@
-import { io } from "socket.io-client";
+import {useEffect} from "react";
+import {useRouter} from "next/router";
 
 export default function Home() {
-  const socket = io("ws://localhost:4242");
-  socket.emit("room::join", { room: "default" });
-  socket.emit("room::message::send", { room: "default", message: "Hello" });
+    const router = useRouter();
+    useEffect(() => {
+        router.push(`/login`);
+    }, []);
 
-  socket.on("room::message::send", ({ room, message }) => {
-    console.log("Message received:", room, message);
-  });
-
-  return (
-    <div>
-    </div>
-  )
+    return (
+        <div>
+        </div>
+    );
 }
